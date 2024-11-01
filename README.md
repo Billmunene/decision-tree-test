@@ -193,26 +193,6 @@ json
   }
 }
 
-{
-  "type": "Loop",
-  "iterations": 10,
-  "subtree": {
-    "type": "Condition",
-    "expression": "checkCondition(i)", // Condition to be checked for the current index
-    "trueBranch": {
-      "type": "Action",
-      "actionType": "Email",
-      "params": {
-        "phoneNumber": "1234567890" // Replace with the actual phone number
-      }
-    },
-    "falseBranch": {
-      "type": "Action",
-      "actionType": "NoOp", // No operation if the condition is false
-      "params": {}
-    }
-  }
-}
 
 
 
