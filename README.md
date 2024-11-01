@@ -193,6 +193,29 @@ json
   }
 }
 
+{
+  "type": "Loop",
+  "iterations": 10,
+  "subtree": {
+    "type": "Condition",
+    "expression": "checkCondition(i)", // Condition to be checked for the current index
+    "trueBranch": {
+      "type": "Action",
+      "actionType": "Email",
+      "params": {
+        "phoneNumber": "1234567890" // Replace with the actual phone number
+      }
+    },
+    "falseBranch": {
+      "type": "Action",
+      "actionType": "NoOp", // No operation if the condition is false
+      "params": {}
+    }
+  }
+}
+
+
+
 ```
 
 1. Click **Send**. You should receive a response indicating whether the decision tree was executed successfully. Check the console output to see how many SMS messages were sent (if the random condition evaluated to true).
