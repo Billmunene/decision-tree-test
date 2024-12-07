@@ -107,13 +107,13 @@ You can test the decision tree execution using Postman:
 
 {
   "type": "Condition",
-  "expression": "new Date().toISOString().slice(0, 10) === '2025-01-01'",
+  "expression": "new Date().toISOString().slice(0, 10) === '2024-12-07'",
   "trueBranch": {
     "type": "Action",
     "actionType": "SMS",
     "params": {
       "phoneNumber": "1234567890",
-      "message": "Happy Christmas!"
+      "message": "Happy chrismas!"
     }
   },
   "falseBranch": {
@@ -174,26 +174,30 @@ You can test the decision tree execution using Postman:
 
 ```json
 json
+
 {
   "type": "Loop",
-  "iterations": 10,
-  "subtree": {
-    "type": "Condition",
-    "expression": "Math.random() < 0.5",  // 50% chance to send SMS
-    "trueBranch": {
+  "iterations": 5,
+  "actions": [
+    {
       "type": "Action",
       "actionType": "SMS",
       "params": {
-        "phoneNumber": "1234567890",
-        "message": "Sending optional SMS!"
+        "phoneNumber": "+1234567890",
+        "message": "Iteration SMS"
       }
     },
-    "falseBranch": {
+    {
       "type": "Action",
-      "actionType": "NoOperation",
-      "params": {}
+      "actionType": "Email",
+      "params": {
+        "sender": "test@example.com",
+        "receiver": "user@example.com",
+        "subject": "Iteration Email",
+        "body": "This is an email sent during the loop."
+      }
     }
-  }
+  ]
 }
 
 
