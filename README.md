@@ -173,11 +173,11 @@ You can test the decision tree execution using Postman:
 2. Paste the following JSON representation:
 
 ```json
-json
+
 
 {
   "type": "Loop",
-  "iterations": 5,
+  "iterations": 10,
   "actions": [
     {
       "type": "Action",
