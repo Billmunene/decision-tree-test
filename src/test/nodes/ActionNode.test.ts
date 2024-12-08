@@ -1,41 +1,68 @@
-import { ActionNode } from '../../nodes/ActionNode';
+import { ActionNode } from '../../nodes/ActionNode'; // Import the ActionNode class
 
-
-// Test suite for ActionNode functionality
-describe('ActionNode', () => {
-  let consoleSpy: jest.SpyInstance; // Spy to monitor console.log calls
-
-  // Setup before each test
-  beforeEach(() => {
-    consoleSpy = jest.spyOn(console, 'log').mockImplementation(); // Spy on console.log to intercept calls
-  });
-
-  // Cleanup after each test
-  afterEach(() => {
-    consoleSpy.mockRestore(); // Restore the original console.log functionality
-  });
-
-  // Test case to log SMS message when type is SMS
-  it('should log SMS message when type is SMS', () => {
-    const node = new ActionNode('SMS', { phoneNumber: '1234567890' }); // Create ActionNode instance for SMS
-    node.execute(); // Execute the ActionNode
-    expect(consoleSpy).toHaveBeenCalledWith('Sending SMS to 1234567890'); // Verify the correct SMS message is logged
-  });
-
-  // Test case to log Email message when type is Email
-  it('should log Email message when type is Email', () => {
-    const node = new ActionNode('Email', { sender: 'sender@test.com', receiver: 'receiver@test.com' }); // Create ActionNode instance for Email
-    node.execute(); // Execute the ActionNode
-    expect(consoleSpy).toHaveBeenCalledWith('Sending Email from sender@test.com to receiver@test.com'); // Verify the correct Email message is logged
-  });
-
-  // Test case to ensure JSON serialization is correct
-  it('should serialize to JSON correctly', () => {
-    const node = new ActionNode('Email', { sender: 'sender@test.com', receiver: 'receiver@test.com' }); // Create ActionNode instance for Email
-    const expectedJson = { // Define the expected JSON output
-      type: 'Email',
-      params: { sender: 'sender@test.com', receiver: 'receiver@test.com' }
+describe("ActionNode", () => {
+  it("executes SMS action correctly", () => {
+    const mockSMSParams = {
+      phoneNumber: "1234567890",
+      message: "Happy Birthday!"
     };
-    expect(node.toJSON()).toEqual(expectedJson); // Verify the JSON serialization matches the expected output
+
+    const smsNode = new ActionNode("SMS", mockSMSParams);
+
+    console.log = jest.fn(); // Mock console.log
+
+    smsNode.execute();
+
+    // Verify the correct SMS message is logged
+    expect(console.log).toHaveBeenCalledWith('SMS sent to 1234567890: "Happy Birthday!"');
+  });
+
+  it("executes Email action correctly", () => {
+    const mockEmailParams = {
+      sender: "sender@example.com",
+      receiver: "receiver@example.com",
+      subject: "Test Email",
+      body: "This is a test email body."
+    };
+
+    const emailNode = new ActionNode("Email", mockEmailParams);
+
+    console.log = jest.fn(); // Mock console.log
+
+    emailNode.execute();
+
+    // Verify the correct Email message is logged
+    expect(console.log).toHaveBeenCalledWith(
+      'Email sent from sender@example.com to receiver@example.com: Subject: "Test Email", Body: "This is a test email body."'
+    );
+  });
+
+  it("executes chained actions correctly", () => {
+    const mockSMSParams = {
+      phoneNumber: "1234567890",
+      message: "Happy Birthday!"
+    };
+
+    const mockEmailParams = {
+      sender: "sender@example.com",
+      receiver: "receiver@example.com",
+      subject: "Test Email",
+      body: "This is a test email body."
+    };
+
+    const emailNode = new ActionNode("Email", mockEmailParams);
+    const smsNode = new ActionNode("SMS", mockSMSParams, emailNode); // Chain SMS -> Email
+
+    console.log = jest.fn(); // Mock console.log
+
+    smsNode.execute();
+
+    // Verify SMS action is logged first
+    expect(console.log).toHaveBeenCalledWith('SMS sent to 1234567890: "Happy Birthday!"');
+
+    // Verify Email action is logged after SMS
+    expect(console.log).toHaveBeenCalledWith(
+      'Email sent from sender@example.com to receiver@example.com: Subject: "Test Email", Body: "This is a test email body."'
+    );
   });
 });

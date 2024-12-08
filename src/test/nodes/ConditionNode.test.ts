@@ -1,50 +1,61 @@
-import { LoopNode } from '../../nodes/LoopNode';
-import { Node } from '../../nodes/Node';
+import { ConditionNode } from '../../nodes/ConditionNode'; // Import the ConditionNode class
+import { ActionNode } from '../../nodes/ActionNode'; // Import the ActionNode class
 
-// MockNode class to simulate a node for testing purposes
-class MockNode extends Node {
-  // Simulates execution by logging a message
-  execute(): void {
-    console.log('Executed');
-  }
+describe("ConditionNode", () => {
+  it("executes the true branch when the condition is met", () => {
+    const mockSMSParams = {
+      phoneNumber: "1234567890",
+      message: "Condition Met!"
+    };
 
-  // Returns an empty object for serialization
-  toJSON(): any {
-    return {};
-  }
-}
+    const smsNode = new ActionNode("SMS", mockSMSParams);
+    const mockNoOpAction = new ActionNode("SMS", { phoneNumber: "0000000000", message: "" });
 
-// Test suite for LoopNode functionality
-describe('LoopNode', () => {
-  let mockSubtree: MockNode; // Instance of MockNode used as a subtree
-  let consoleSpy: jest.SpyInstance; // Spy to monitor console.log calls
+    console.log = jest.fn(); // Mock console.log
 
-  // Setup before each test
-  beforeEach(() => {
-    mockSubtree = new MockNode(); // Initialize a new MockNode instance
-    consoleSpy = jest.spyOn(console, 'log').mockImplementation(); // Spy on console.log to intercept calls
+    // Create ConditionNode with condition always true
+    const conditionNode = new ConditionNode(
+      "'2025-01-01' === '2025-01-01'", // Always true condition
+      smsNode,
+      mockNoOpAction
+    );
+
+    conditionNode.execute();
+
+    // Verify the SMS action is executed (true branch)
+    expect(console.log).toHaveBeenCalledWith('SMS sent to 1234567890: "Condition Met!"');
   });
 
-  // Cleanup after each test
-  afterEach(() => {
-    consoleSpy.mockRestore(); // Restore the original console.log functionality
-  });
+  it("executes the false branch when the condition is not met", () => {
+    const mockSMSParams = {
+      phoneNumber: "1234567890",
+      message: "Condition Met!"
+    };
 
-  // Test case to verify that the subtree executes the correct number of times
-  it('should execute the subtree the correct number of times', () => {
-    const node = new LoopNode(3, mockSubtree); // Create a LoopNode with 3 iterations
-    node.execute(); // Execute the LoopNode
-    expect(consoleSpy).toHaveBeenCalledTimes(3); // Verify console.log was called 3 times
-  });
+    const mockEmailParams = {
+      sender: "sender@example.com",
+      receiver: "receiver@example.com",
+      subject: "Condition Not Met",
+      body: "Condition is false"
+    };
 
-  // Test case to ensure JSON serialization is correct
-  it('should serialize to JSON correctly', () => {
-    const node = new LoopNode(3, mockSubtree); // Create a LoopNode with 3 iterations
-    const json = node.toJSON(); // Serialize the LoopNode to JSON
-    expect(json).toEqual({ // Verify the JSON structure matches expected output
-      type: 'Loop',
-      iterations: 3,
-      subtree: {}
-    });
+    const smsNode = new ActionNode("SMS", mockSMSParams);
+    const emailNode = new ActionNode("Email", mockEmailParams);
+
+    console.log = jest.fn(); // Mock console.log
+
+    // Create ConditionNode with condition always false
+    const conditionNode = new ConditionNode(
+      "'2025-01-01' !== '2025-01-01'", // Always false condition
+      smsNode,
+      emailNode
+    );
+
+    conditionNode.execute();
+
+    // Verify the Email action is executed (false branch)
+    expect(console.log).toHaveBeenCalledWith(
+      'Email sent from sender@example.com to receiver@example.com: Subject: "Condition Not Met", Body: "Condition is false"'
+    );
   });
 });

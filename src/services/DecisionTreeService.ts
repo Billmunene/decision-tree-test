@@ -19,14 +19,19 @@ export class DecisionTreeService {
         // Check if there is a nextAction and deserialize it
         const nextAction = data.nextAction ? this.deserialize(data.nextAction) as ActionNode : undefined; // Cast to ActionNode
         return new ActionNode(data.actionType, data.params, nextAction); // Create an ActionNode
+
       case 'Condition':
         return new ConditionNode(
           data.expression,
           this.deserialize(data.trueBranch), // Recursively deserialize the true branch
           this.deserialize(data.falseBranch) // Recursively deserialize the false branch
         );
+
       case 'Loop':
-        return new LoopNode(data.iterations, this.deserialize(data.subtree)); // Create a LoopNode
+        // Handle multiple actions in the loop
+        const actions = data.actions.map((action: any) => this.deserialize(action));
+        return new LoopNode(data.iterations, actions); // Pass actions array to LoopNode
+
       default:
         throw new Error(`Unsupported node type: ${data.type}`); // Throw an error for unsupported node type
     }
